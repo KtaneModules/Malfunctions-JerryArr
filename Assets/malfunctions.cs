@@ -172,7 +172,7 @@ public class malfunctions : MonoBehaviour
             var letterRuleHit = 0;
             var letterRuleMiss = 0;
             rnd.ShuffleFisherYates(theNumbers);
-            Debug.LogFormat("[Functions #{0}] Using rule seed: {1}.", _moduleId, rnd.Seed);
+            Debug.LogFormat("[Malfunctions #{0}] Using rule seed: {1}.", _moduleId, rnd.Seed);
             
             for (int i = 0; i < 36; i++)
             {
@@ -203,6 +203,7 @@ public class malfunctions : MonoBehaviour
 			xValue = 1;
 		}
 		quirkNum = UnityEngine.Random.Range(0, 3);
+		//quirkNum = 2;
 		//0 = answer +/- 1, 1 = query function +/- 1, 2 = a and b +/- 1
         if (quirkNum == 0)
         {
@@ -240,15 +241,19 @@ public class malfunctions : MonoBehaviour
         pickedLetter = UnityEngine.Random.Range(0, 26);
         ruleLetter = alphabet[pickedLetter];
         pickedFunction = UnityEngine.Random.Range(0, 36);
+        //pickedFunction = 16;
+		//Debug.LogFormat("Malf: function picked is " + rsFunctionNum[pickedFunction]);
+		if (quirkNum == 2)
+		{
+			while (rsFunctionNum[pickedFunction] == 3 || rsFunctionNum[pickedFunction] == 5)
+			{
+				pickedFunction = UnityEngine.Random.Range(0, 36);
+			}
+			
+		}
         //pickedFunction = 17;
-        if (!snHasDigit) //If the SN doesn't contain a digit, two Query Functions could potentially have the same answer regardless of what is queried, which is a problem.
-        {                //This shouldn't be a problem as I don't believe any mods allow for digitless SN's but who knows in the future.
-            while (rsFunctionNum[pickedFunction] == 9 || rsFunctionNum[pickedFunction] == 15)
-            {
-                pickedFunction = UnityEngine.Random.Range(0, 36);
-            }
-        }
-        //pickedFunction = 26;
+		//Debug.LogFormat("Now, function picked is " + rsFunctionNum[pickedFunction]);
+
         if (UnityEngine.Random.Range(0, 10) < 7)
         {
             numberA = UnityEngine.Random.Range(1, 100);
@@ -285,10 +290,10 @@ public class malfunctions : MonoBehaviour
         {
             finalFunction = finalFunction + 36;
         }
-        Debug.LogFormat("[Functions #{0}] Display is {1} {2} {3}.", _moduleId, numberA, alphabet[pickedLetter], numberB);
-        Debug.LogFormat("[Functions #{0}] Selected malfunction: {1}, (X is {2}).", _moduleId, quirkName, xValue);
-        Debug.LogFormat("[Functions #{0}] Initial Query Function is #{1}: {2}.", _moduleId, pickedFunction, theFunctions[rsFunctionNum[pickedFunction]]);
-        Debug.LogFormat("[Functions #{0}] {1}, meaning rule {2} is {3}, so adjust {4} by {5} (using the '{3}' offset for the row {6} {2}), so the Final Function is number {7}, solution below.", _moduleId,
+        Debug.LogFormat("[Malfunctions #{0}] Display is {1} {2} {3}.", _moduleId, numberA, alphabet[pickedLetter], numberB);
+        Debug.LogFormat("[Malfunctions #{0}] Selected malfunction: {1}, (X is {2}).", _moduleId, quirkName, xValue);
+        Debug.LogFormat("[Malfunctions #{0}] Initial Query Function is #{1}: {2}.", _moduleId, pickedFunction, theFunctions[rsFunctionNum[pickedFunction]]);
+        Debug.LogFormat("[Malfunctions #{0}] {1}, meaning rule {2} is {3}, so adjust {4} by {5} (using the '{3}' offset for the row {6} {2}), so the Final Function is number {7}, solution below.", _moduleId,
         theRules[pickedLetter, letterRuleOn], alphabet[pickedLetter], letterRuleOn == 0 ? "true" : "false", pickedFunction, rsRuleOffset[(26 + xValue + pickedLetter) % 26, letterRuleOn],
         xValue == 1 ? "below" : "above", finalFunction);
         moduleSolution = -1;
@@ -362,20 +367,20 @@ public class malfunctions : MonoBehaviour
             {
                 inputNumberB = Int32.Parse(currentInput);
             }
-            Debug.LogFormat("[Functions #{0}] {1} and {2}.", _moduleId, inputNumberA, inputNumberB);
+            Debug.LogFormat("[Malfunctions #{0}] {1} and {2}.", _moduleId, inputNumberA, inputNumberB);
             if (inputNumberA == 0 || inputNumberB == 0)
             {
-                Debug.LogFormat("[Functions #{0}] You queried a zero, that's a strike! Query not made.", _moduleId);
+                Debug.LogFormat("[Malfunctions #{0}] You queried a zero, that's a strike! Query not made.", _moduleId);
                 giveStrike = true;
             }
             else if (inputNumberA == inputNumberB)
             {
-                Debug.LogFormat("[Functions #{0}] You queried two of the same number, that's a strike! Query not made.", _moduleId);
+                Debug.LogFormat("[Malfunctions #{0}] You queried two of the same number, that's a strike! Query not made.", _moduleId);
                 giveStrike = true;
             }
             else if ((inputNumberA == prevNumA || inputNumberA == prevNumB || inputNumberB == prevNumA || inputNumberB == prevNumB) && !surpriseQuery)
             {
-                Debug.LogFormat("[Functions #{0}] You queried a number that was queried during the last query, that's a strike! Query not made.", _moduleId);
+                Debug.LogFormat("[Malfunctions #{0}] You queried a number that was queried during the last query, that's a strike! Query not made.", _moduleId);
                 giveStrike = true;
             }
             if (giveStrike)
@@ -400,7 +405,7 @@ public class malfunctions : MonoBehaviour
                     currentInputAsNumber = inputNumberA + inputNumberB;
                     functionZone(rsFunctionNum[(36 + (xValue * roundNum) + pickedFunction) % 36], inputNumberA, inputNumberB);
                     inputResult.GetComponentInChildren<TextMesh>().text = "" + currentInputAsNumber;
-                    Debug.LogFormat("[Functions #{0}] This module's malfunction {1} one to the position on the list of functions to use, so the next function will be #{2}, {3}.", _moduleId,
+                    Debug.LogFormat("[Malfunctions #{0}] This module's malfunction {1} one to the position on the list of functions to use, so the next function will be #{2}, {3}.", _moduleId,
                         xValue == 1 ? "adds" : "subtracts", rsFunctionNum[(36 + (xValue * (1 + roundNum)) + pickedFunction) % 36], theFunctions[rsFunctionNum[(36 + (xValue * (1 + roundNum)) + pickedFunction) % 36]]);
                 }
                 else
@@ -450,11 +455,11 @@ public class malfunctions : MonoBehaviour
                         varChangeString = varChangeString + " b will become " + (inputNumberB) + ".";
                     }
 
-                        Debug.LogFormat("[Functions #{0}] {1}", _moduleId, varChangeString);
+                        Debug.LogFormat("[Malfunctions #{0}] {1}", _moduleId, varChangeString);
                         functionZone(rsFunctionNum[pickedFunction], inputNumberA, inputNumberB);
                         inputResult.GetComponentInChildren<TextMesh>().text = "" + currentInputAsNumber;
                     /*
-                    Debug.LogFormat("[Functions #{0}] This module's malfunction {1} one {2} each variable before performing the query calculation.", _moduleId,
+                    Debug.LogFormat("[Malfunctions #{0}] This module's malfunction {1} one {2} each variable before performing the query calculation.", _moduleId,
                                             xValue == 1 ? "adds" : "subtracts");
                     functionZone(rsFunctionNum[pickedFunction], inputNumberA, inputNumberB);
                     inputResult.GetComponentInChildren<TextMesh>().text = "" + currentInputAsNumber; */
@@ -484,7 +489,7 @@ public class malfunctions : MonoBehaviour
 			}
             else if (Int64.Parse(currentInput) == moduleSolution)
             {
-                Debug.LogFormat("[Functions #{0}] Submitted input of {1} and the expected {2} match, module disarmed!", _moduleId, Int64.Parse(currentInput), moduleSolution);
+                Debug.LogFormat("[Malfunctions #{0}] Submitted input of {1} and the expected {2} match, module disarmed!", _moduleId, Int64.Parse(currentInput), moduleSolution);
                 var winMessage = new string[19] { "BOOYAH!", "--DISARMED--", "YES! YES!", "NAILED IT!", "WOO!", "CHA-CHING!", "GOT IT!", "GENIUS!", "WELL DONE!", "YOU DID IT!",
 					"  WAHOO!  ", "  SCORE    ", "COOL BEANS!", "SOLVE PHRASE", "GOOD ONE", "LED = GREEN", "SOLVES++;", "^^vv< >< >BA", "MATH IS FUN"};
                 isSolved = true;
@@ -508,7 +513,7 @@ public class malfunctions : MonoBehaviour
             }
             else
             {
-                Debug.LogFormat("[Functions #{0}] Submitted input of {1} and the expected {2} do not match, that's a strike!", _moduleId, Int64.Parse(currentInput), moduleSolution);
+                Debug.LogFormat("[Malfunctions #{0}] Submitted input of {1} and the expected {2} do not match, that's a strike!", _moduleId, Int64.Parse(currentInput), moduleSolution);
                 GetComponent<KMBombModule>().HandleStrike();
             }
         }
@@ -1047,7 +1052,7 @@ public class malfunctions : MonoBehaviour
             toPrepend = "Query ";
         }
         var wackyString = "";
-        //fNum = 20;
+        //fNum = 5;
         switch (fNum)
         {
             case 0: // abs(a minus 3) times abs(b minus 3)
@@ -1055,7 +1060,7 @@ public class malfunctions : MonoBehaviour
                 currentInputAsNumber = Math.Abs(inputY - 3) * Math.Abs(inputZ - 3);
                 currentInput = toPrepend + "Function: abs(a minus 3) times abs(b minus 3). abs(" + (inputY-3) + ") * abs(" + (inputZ - 3) + ") is " + currentInputAsNumber + ".";
 
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3}", _moduleId, inputY, inputZ, currentInput);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3}", _moduleId, inputY, inputZ, currentInput);
                 break;
             case 1: // Larger modulo smaller
                 int largerOneD;
@@ -1072,7 +1077,7 @@ public class malfunctions : MonoBehaviour
                     smallerOneD = inputY;
                 }
                 currentInputAsNumber = largerOneD % smallerOneD;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 2: //10,000 modulo Larger
                 currentInput = toPrepend + "Function: 10,000 modulo Larger.";
@@ -1080,18 +1085,18 @@ public class malfunctions : MonoBehaviour
                 {
                     currentInputAsNumber = 10000 % inputY;
 
-                    Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} 10,000 modulo {4} is {5}.", _moduleId, inputY, inputZ, currentInput, inputY, currentInputAsNumber);
+                    Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} 10,000 modulo {4} is {5}.", _moduleId, inputY, inputZ, currentInput, inputY, currentInputAsNumber);
                 }
                 else
                 {
                     currentInputAsNumber = 10000 % inputZ;
-                    Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} 10,000 modulo {4} is {5}.", _moduleId, inputY, inputZ, currentInput, inputZ, currentInputAsNumber);
+                    Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} 10,000 modulo {4} is {5}.", _moduleId, inputY, inputZ, currentInput, inputZ, currentInputAsNumber);
                 }
                 break;
             case 3: //7
                 currentInput = toPrepend + "Function: Just return 7.";
                 currentInputAsNumber = 7;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} Okay, here is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} Okay, here is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 4: //(Larger divided by smaller) modulo 10
                 int largerOneE;
@@ -1108,7 +1113,7 @@ public class malfunctions : MonoBehaviour
                     smallerOneE = inputY;
                 }
                 currentInputAsNumber = (int)(largerOneE / smallerOneE) % 10;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}, the integer of which is {5}. This modulo 10 is {6}.", _moduleId, inputY, inputZ, currentInput,
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}, the integer of which is {5}. This modulo 10 is {6}.", _moduleId, inputY, inputZ, currentInput,
                     (float)largerOneE / (float)smallerOneE, (int)(largerOneE / smallerOneE), currentInputAsNumber);
                 break;
             case 5: // Triple the number of odd numbers
@@ -1125,18 +1130,18 @@ public class malfunctions : MonoBehaviour
                 if (currentInputAsNumber == 3)
                 {
 
-                    Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. There is 1 odd number, which gives 3.", _moduleId, inputY, inputZ);
+                    Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. There is 1 odd number, which gives 3.", _moduleId, inputY, inputZ);
                 }
                 else
                 {
 
-                    Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. There are {3} odd numbers, which gives {4}.", _moduleId, inputY, inputZ, currentInputAsNumber/3, currentInputAsNumber);
+                    Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. There are {3} odd numbers, which gives {4}.", _moduleId, inputY, inputZ, currentInputAsNumber/3, currentInputAsNumber);
                 }
                 break;
             case 6: //10 minus (abs(digits in a minus digits in b))
                 currentInput = toPrepend + "Function: 10 minus abs(digits in a minus digits in b).";
                 currentInputAsNumber = 10 - Math.Abs(inputY.ToString().Length - inputZ.ToString().Length);
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 7: //(sum of a's digits) * (sum of b's digits)
                 currentInput = toPrepend + "Function: Sum of a's digits times sum of b's digits.";
@@ -1151,19 +1156,19 @@ public class malfunctions : MonoBehaviour
                     sumB = sumB + Int16.Parse(("" + inputZ).Substring(j, 1));
                 }
                 currentInputAsNumber = sumA * sumB;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} Digit sums are {4} and {5}, and their product is {6}.", _moduleId, inputY, inputZ,
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} Digit sums are {4} and {5}, and their product is {6}.", _moduleId, inputY, inputZ,
                     currentInput, sumA, sumB, currentInputAsNumber);
                 break;
             case 8: //a times b
                 currentInputAsNumber = inputY * inputZ;
                 currentInput = toPrepend + "Function: a times b.";
 
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 9: //(a+b) modulo 12
                 currentInput = toPrepend + "Function: (a+b) modulo 12.";
                 currentInputAsNumber = (inputY + inputZ) % 12;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} The sum is {4}, that modulo 12 is {5}.", _moduleId, inputY, inputZ, currentInput,
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} The sum is {4}, that modulo 12 is {5}.", _moduleId, inputY, inputZ, currentInput,
                     (inputZ + inputY), currentInputAsNumber);
                 break;
             case 10: //Highest digit
@@ -1179,12 +1184,12 @@ public class malfunctions : MonoBehaviour
 
                 }
                 currentInputAsNumber = hiDigit;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 11: //((a modulo 10) cubed) plus ((b modulo 10) cubed)
                 currentInput = toPrepend + "Function: ((a modulo 10) cubed) plus ((b modulo 10) cubed).";
                 currentInputAsNumber = (int)Math.Pow(inputY % 10, 3) + (int)Math.Pow(inputZ % 10, 3);
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} These are {4} and {5}, the sum of which is {6}.", _moduleId, inputY, inputZ, currentInput, (int)Math.Pow(inputY % 10, 3),
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} These are {4} and {5}, the sum of which is {6}.", _moduleId, inputY, inputZ, currentInput, (int)Math.Pow(inputY % 10, 3),
                     (int)Math.Pow(inputZ % 10, 3), currentInputAsNumber);
                 break;
             case 12: //Lunar Addition
@@ -1212,14 +1217,14 @@ public class malfunctions : MonoBehaviour
                     }
                 }
                 currentInputAsNumber = Int16.Parse(wackyString);
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 13: // abs(10,000 minus a) times abs(1,000 minus b)
 
                 currentInputAsNumber = Math.Abs(10000 - inputY) * Math.Abs(1000 - inputZ);
                 currentInput = toPrepend + "Function: abs(10,000 minus a) times abs(1,000 minus b). abs(" + (10000 - inputY) + ") * abs(" + (1000 - inputZ) + ") is " + currentInputAsNumber + ".";
 
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3}", _moduleId, inputY, inputZ, currentInput);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3}", _moduleId, inputY, inputZ, currentInput);
                 break;
             case 14: // (Larger modulo smaller) modulo 8
                 int largerOneEi;
@@ -1236,7 +1241,7 @@ public class malfunctions : MonoBehaviour
                     smallerOneEi = inputY;
                 }
                 currentInputAsNumber = (largerOneEi % smallerOneEi) % 8;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} Larger modulo smaller is {4}, that modulo 8 is {5}.", _moduleId, inputY, inputZ, currentInput,
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} Larger modulo smaller is {4}, that modulo 8 is {5}.", _moduleId, inputY, inputZ, currentInput,
                     largerOneEi % smallerOneEi, currentInputAsNumber);
                 break;
             case 15: //Number of different digits
@@ -1263,7 +1268,7 @@ public class malfunctions : MonoBehaviour
                     }
                 }
                 currentInputAsNumber = digitsIn;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 16:  //smaller minus (larger modulo smaller)
                 int largerOneC;
@@ -1280,7 +1285,7 @@ public class malfunctions : MonoBehaviour
                     smallerOneC = inputY;
                 }
                 currentInputAsNumber = smallerOneC - (largerOneC % smallerOneC);
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} That is {4}.", _moduleId, inputY, inputZ,
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} That is {4}.", _moduleId, inputY, inputZ,
                 currentInput, currentInputAsNumber);
                 break;
             case 17: //Number of different odd digits
@@ -1307,17 +1312,17 @@ public class malfunctions : MonoBehaviour
                     }
                 }
                 currentInputAsNumber = digitsInX;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 18: //((a + b) times 10) plus (abs(a - b) modulo 10)
                 currentInput = toPrepend + "Function: ((a + b) times 10) plus (abs(a - b) modulo 10).";
                 currentInputAsNumber = ((inputY + inputZ) * 10) + (Math.Abs(inputY - inputZ) % 10);
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 19: //a plus b
                 currentInput = toPrepend + "Function: a plus b.";
                 currentInputAsNumber = inputY + inputZ;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 20: //(a times b) divided by (ports + 2)
                 int largerOneP;
@@ -1334,14 +1339,14 @@ public class malfunctions : MonoBehaviour
                     smallerOneP = inputY;
                 }
                 currentInputAsNumber = ((smallerOneP * largerOneP) / (2 + Bomb.GetPortCount()));
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
 
                 break;
             case 21: //a times b, modulo 10
 
                 currentInput = toPrepend + "Function: a times b, modulo 10.";
                 currentInputAsNumber = (inputY * inputZ) % 10;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4} modulo 10, or {5}.", _moduleId, inputY, inputZ, currentInput, inputY * inputZ, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4} modulo 10, or {5}.", _moduleId, inputY, inputZ, currentInput, inputY * inputZ, currentInputAsNumber);
                 break;
             case 22: //Number of digits missing
                 currentInput = toPrepend + "Function: Number of digits missing.";
@@ -1366,7 +1371,7 @@ public class malfunctions : MonoBehaviour
                     }
                 }
                 currentInputAsNumber = digitsOut;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 23: //(Larger modulo smaller) times smaller
                 int largerOnePx;
@@ -1383,45 +1388,45 @@ public class malfunctions : MonoBehaviour
                     smallerOnePx = inputY;
                 }
                 currentInputAsNumber = (largerOnePx % smallerOnePx) * smallerOnePx;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4} times {5}, or {6}.", _moduleId, inputY, inputZ, currentInput, largerOnePx % smallerOnePx, smallerOnePx,
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4} times {5}, or {6}.", _moduleId, inputY, inputZ, currentInput, largerOnePx % smallerOnePx, smallerOnePx,
                     currentInputAsNumber);
 
                 break;
             case 24: //a + (b squared)
                 currentInput = toPrepend + "Function: a + (b squared).";
                 currentInputAsNumber = (inputZ * inputZ) + (inputY);
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} The final answer is {4}.", _moduleId, inputY, inputZ,
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} The final answer is {4}.", _moduleId, inputY, inputZ,
                      currentInput, currentInputAsNumber);
                 break;
             case 25: // 11 minus twice the number of non-two-digit variables
                 currentInputAsNumber = 11;
-                if (inputY >= 10 && inputY <= 99)
+                if (inputY >= 100 || inputY <= 9)
                 {
                     currentInputAsNumber = currentInputAsNumber - 2;
                 }
-                if (inputZ >= 10 && inputZ <= 99)
+                if (inputZ >= 100 || inputZ <= 9)
                 {
                     currentInputAsNumber = currentInputAsNumber - 2;
                 }
                 currentInput = toPrepend + "Function: 11 minus twice the number of non-two-digit variables.";
 
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is made into the integer {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is made into the integer {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
-            case 26: //Absolute value of a minus b
-                currentInput = toPrepend + "Function: Absolute value of (a minus b)";
-                currentInputAsNumber = Math.Abs(inputY - inputZ);
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+            case 26: //Absolute value of a minus 2b
+                currentInput = toPrepend + "Function: Absolute value of (a minus 2b)";
+                currentInputAsNumber = Math.Abs(inputY - (inputZ * 2));
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 27: //(a times b) module 73
                 currentInput = toPrepend + "Function: (a times b) module 73.";
                 currentInputAsNumber = (inputY * inputZ) % 73;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} The product is {4}, that modulo 73 is {5}.", _moduleId, inputY, inputZ,
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} The product is {4}, that modulo 73 is {5}.", _moduleId, inputY, inputZ,
                      currentInput, (inputY * inputZ), currentInputAsNumber);
                 break;
             case 28: //Number of digits * 1500
                 currentInput = toPrepend + "Function: Number of digits times 1,500.";
                 currentInputAsNumber = ("" + inputY + inputZ).Length * 1500;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 29: //3 plus the number of numbers over 2,500
                 currentInputAsNumber = 3;
@@ -1434,12 +1439,12 @@ public class malfunctions : MonoBehaviour
                     currentInputAsNumber++;
                 }
 
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. " + toPrepend + "3 plus the number of numbers over 2,500, which is {3}.", _moduleId, inputY, inputZ, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. " + toPrepend + "3 plus the number of numbers over 2,500, which is {3}.", _moduleId, inputY, inputZ, currentInputAsNumber);
                 break;
             case 30: //(a squared) + b
                 currentInput = toPrepend + "Function: (a squared) + b.";
                 currentInputAsNumber = (inputY * inputY) + (inputZ);
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} The final answer is {4}.", _moduleId, inputY, inputZ,
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} The final answer is {4}.", _moduleId, inputY, inputZ,
                      currentInput, currentInputAsNumber);
                 break;
             case 31: //Larger divided by (digits in both a and b)
@@ -1454,7 +1459,7 @@ public class malfunctions : MonoBehaviour
                     largerOneEd = inputZ;
                 }
                 currentInputAsNumber = (int)(largerOneEd / ("" + inputY + inputZ).Length);
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}, the integer of which is {5}.", _moduleId, inputY, inputZ, currentInput,
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}, the integer of which is {5}.", _moduleId, inputY, inputZ, currentInput,
                     (float)largerOneEd / ("" + inputY + inputZ).Length, currentInputAsNumber);
                 break;
             case 32: //a + b + all concatenated serial number digits + 1
@@ -1470,7 +1475,7 @@ public class malfunctions : MonoBehaviour
                     }
                 }
                 currentInputAsNumber = currentInputAsNumber + Int16.Parse(wackyString);
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 33: //8 minus (Number of numbers below 100)
                 currentInputAsNumber = 8;
@@ -1483,13 +1488,13 @@ public class malfunctions : MonoBehaviour
                     currentInputAsNumber--;
                 }
                 currentInput = toPrepend + "Function: 8 minus (Number of numbers below 100).";
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ,
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ,
                     currentInput, currentInputAsNumber);
                 break;
             case 34: //(a modulo 50) + b
                 currentInput = toPrepend + "Function: (a modulo 50) + b.";
                 currentInputAsNumber = (inputY % 50) + inputZ;
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}.", _moduleId, inputY, inputZ, currentInput, currentInputAsNumber);
                 break;
             case 35: // (Larger/Smaller)
                 int largerOneEz;
@@ -1506,7 +1511,7 @@ public class malfunctions : MonoBehaviour
                     smallerOneEz = inputY;
                 }
                 currentInputAsNumber = (int)(largerOneEz / smallerOneEz);
-                Debug.LogFormat("[Functions #{0}] Variables are {1}, {2}. {3} This is {4}, the integer of which is {5}.", _moduleId, inputY, inputZ, currentInput,
+                Debug.LogFormat("[Malfunctions #{0}] Variables are {1}, {2}. {3} This is {4}, the integer of which is {5}.", _moduleId, inputY, inputZ, currentInput,
                     (float)largerOneEz / (float)smallerOneEz, currentInputAsNumber);
                 break;
             default: // Uh oh, something's wrong, solve module and tell them to contact me
@@ -1516,7 +1521,7 @@ public class malfunctions : MonoBehaviour
                 inputResult.GetComponentInChildren<TextMesh>().text = "@JerryEris";
                 pressedAllowed = false;
                 GetComponent<KMBombModule>().HandlePass();
-                Debug.LogFormat("[Functions #{0}] Something went wrong, please contact JerryEris#6034 on Discord!", _moduleId);
+                Debug.LogFormat("[Malfunctions #{0}] Something went wrong, please contact JerryEris#6034 on Discord!", _moduleId);
                 break;
         }
         /*  
@@ -1527,17 +1532,17 @@ public class malfunctions : MonoBehaviour
             currentInputAsNumber = currentInputAsNumber + xValue;
             if (currentInputAsNumber < 0)
             {
-                Debug.LogFormat("[Functions #{0}] This module's malfunction would subtract one to the query result, but it cannot display a negative number, so it will display 0.", _moduleId);
+                Debug.LogFormat("[Malfunctions #{0}] This module's malfunction would subtract one to the query result, but it cannot display a negative number, so it will display 0.", _moduleId);
                 currentInputAsNumber = 0;
             }
             else if (currentInputAsNumber > 999999999999)
             {
                 currentInputAsNumber = Int64.Parse(currentInputAsNumber.ToString().Substring(0, 12));
-                Debug.LogFormat("[Functions #{0}] This module's malfunction {1} one to the query result, so it will display {2}.", _moduleId, xValue == 1 ? "adds" : "subtracts", currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] This module's malfunction {1} one to the query result, so it will display {2}.", _moduleId, xValue == 1 ? "adds" : "subtracts", currentInputAsNumber);
             }
             else
             {
-                Debug.LogFormat("[Functions #{0}] This module's malfunction {1} one to the query result, so it will display {2}.", _moduleId, xValue == 1 ? "adds" : "subtracts", currentInputAsNumber);
+                Debug.LogFormat("[Malfunctions #{0}] This module's malfunction {1} one to the query result, so it will display {2}.", _moduleId, xValue == 1 ? "adds" : "subtracts", currentInputAsNumber);
             }
             
         }
